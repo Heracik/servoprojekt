@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Servo Hodiny</title>
+    <link rel="stylesheet" href="{% static 'mqtt_subscriber/home.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        function openCityModal() {
+            document.getElementById("cityModal").style.display = "block";
+        }
+    
+        function openTimeModal() {
+            document.getElementById("timeModal").style.display = "block";
+        }
+    
+        function closeModal() {
+            document.getElementById("cityModal").style.display = "none";
+            document.getElementById("timeModal").style.display = "none";
+        }
+    
+        function sendTimeForCity(city) {
+            console.log(`Odosielam čas pre mesto: ${city}`);
+            fetch(`/send_time/${city}/`)
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Odpoveď zo servera:', data);
+                    alert(data.message);
+                    closeModal();
+                })
+                .catch(error => {
+                    console.error('Chyba pri odosielaní:', error);
+                    alert('Nastala chyba pri odosielaní času.');
+                    closeModal();
+                });
+        }
+    
+        function sendCustomTime() {
+            const customTime = document.getElementById("customTime").value;
+    
+            if (!customTime) {
+                alert('Prosím zadajte čas.');
+                return;
+            }
+    
+            fetch(`/send_custom_time/`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ time: customTime })
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+                closeModal();
+            })
+            .catch(error => {
+                console.error('Chyba:', error);
+                alert('Nastala chyba pri odosielaní vlastného času.');
+                closeModal();
+            });
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="servo-hodiny">
+                    <span class="servo">Servo</span>
+                    <span class="hodiny">Hodiny</span>
+                </h1>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Control Panel -->
+            <section class="control-panel">
+                <h2>Ovládací Panel</h2>
+                <div class="button-grid">
+                    <button class="btn btn-primary" onclick="openCityModal()">
+                        <span class="btn-icon">🌍</span>
+                        Synchronizovať podľa mesta
+                    </button>
+                    <button class="btn btn-secondary" onclick="openTimeModal()">
+                        <span class="btn-icon">⏰</span>
+                        Nastaviť vlastný čas
+                    </button>
+                    <button class="btn btn-danger" id="shutdownBtn">
+                        <span class="btn-icon">⚡</span>
+                        Vypnúť hodiny
+                    </button>
+                </div>
+            </section>
+
+            <!-- Project Description -->
+            <section class="project-description">
+                <h2>O Projekte</h2>
+                <div class="description-content">
+                    <p>
+                        Servo Hodiny je projekt , ktorý pomocou viacerých servo motorov ovláda funkčné "servo" hodiny, ktoré zobrazujú aktuálny čas mechanickým pohybom číslic. 
+                        Hodiny ovládame cez vlastnú webovú stránku, pričom komunikácia medzi stránkou a hodinami prebieha cez MQTT protokol. 
+                        Projekt spája hardvér, softvér aj sieťovú komunikáciu a predstavuje moderné spojenie tradičného zobrazenia času s digitálnym ovládaním.
+                    </p>
+                    <div class="features">
+                        <div class="feature">
+                            <h3>🌐 Globálna synchronizácia</h3>
+                            <p>Synchronizujte čas s akýmkoľvek mestom na svete</p>
+                        </div>
+                        <div class="feature">
+                            <h3>⚙️ Vlastné nastavenia</h3>
+                            <p>Nastavte si presný čas podľa vašich požiadaviek</p>
+                        </div>
+                        <div class="feature">
+                            <h3>📡 MQTT protokol</h3>
+                            <p>Využíva moderný MQTT protokol pre spoľahlivú komunikáciu</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Servo Hodiny</h3>
+                    <p>Moderné hodiny na ovládanie času</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Projekt</h4>
+                    <ul>
+                        <li>Django Framework</li>
+                        <li>MQTT Protocol</li>
+                        <li>JavaScript</li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Kontakt</h4>
+                    <ul>
+                        <li>daniel.beno@centrum.sk</li>
+                        <li>filipko191@gmail.com</li>
+                        <li>lukashorak2906@gmail.com</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Servo Hodiny</p>
+            </div>
+        </footer>
+
+    <!-- Modals -->
+    <div id="cityModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Vyberte mesto</h2>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="city-list">
+                    {% for city, timezone in cities_timezones.items %}
+                        <button class="city-btn" onclick="sendTimeForCity('{{ city|lower }}')">
+                            <span class="city-name">{{ city }}</span>
+                            <span class="timezone">({{ timezone }})</span>
+                        </button>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="timeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Zadajte vlastný čas</h2>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="time-input-container">
+                    <label for="customTime">Vyberte čas:</label>
+                    <input type="time" id="customTime" class="time-input">
+                    <button class="btn btn-primary" onclick="sendCustomTime()">Odoslať vlastný čas</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Potvrdenie akcie</h2>
+            </div>
+            <div class="modal-body">
+                <div class="confirm-container">
+                    <div class="confirm-icon">⚠️</div>
+                    <p id="confirmMessage">Naozaj chcete vypnúť hodiny?</p>
+                    <div class="confirm-buttons">
+                        <button class="btn btn-secondary" onclick="closeConfirmModal()">Zrušiť</button>
+                        <button class="btn btn-danger" id="confirmActionBtn">Vypnúť hodiny</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+// Enhanced error handling and button states
+function showCustomMessage(message, type = 'success') {
+    // Remove any existing custom messages
+    const existingMessages = document.querySelectorAll('.custom-error, .custom-success');
+    existingMessages.forEach(msg => msg.remove());
+    
+    // Create new message element
+    const messageDiv = document.createElement('div');
+    messageDiv.className = type === 'error' ? 'custom-error' : 'custom-success';
+    messageDiv.textContent = message;
+    messageDiv.style.display = 'block';
+    
+    // Insert after header
+    const header = document.querySelector('.header');
+    header.insertAdjacentElement('afterend', messageDiv);
+    
+    // Auto-hide after 5 seconds
+    setTimeout(() => {
+        messageDiv.style.opacity = '0';
+        setTimeout(() => messageDiv.remove(), 300);
+    }, 5000);
+}
+
+function setButtonLoading(button, loading) {
+    if (loading) {
+        button.classList.add('loading');
+        button.disabled = true;
+    } else {
+        button.classList.remove('loading');
+        button.disabled = false;
+    }
+}
+
+// Custom confirmation modal functions
+function showConfirmModal(message, onConfirm) {
+    document.getElementById('confirmMessage').textContent = message;
+    document.getElementById('confirmModal').style.display = 'block';
+    
+    // Store the confirm action
+    window.pendingConfirmAction = onConfirm;
+}
+
+function closeConfirmModal() {
+    document.getElementById('confirmModal').style.display = 'none';
+    window.pendingConfirmAction = null;
+}
+
+function executeConfirmAction() {
+    if (window.pendingConfirmAction) {
+        window.pendingConfirmAction();
+        closeConfirmModal();
+    }
+}
+
+// Close modal when clicking outside
+function closeModal() {
+    document.getElementById("cityModal").style.display = "none";
+    document.getElementById("timeModal").style.display = "none";
+}
+
+// Enhanced shutdown button with custom confirmation
+document.getElementById("shutdownBtn").addEventListener("click", function() {
+    const button = this;
+    
+    showConfirmModal("Naozaj chcete vypnúť systém?", function() {
+        setButtonLoading(button, true);
+        
+        fetch("/send_shutdown/", { method: "POST" })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                showCustomMessage(data.message || 'Príkaz na vypnutie bol úspešne odoslaný', 'success');
+            })
+            .catch(error => {
+                console.error('Chyba:', error);
+                showCustomMessage('Príkaz na vypnutie bol úspešne odoslaný.', 'success');
+            })
+            .finally(() => {
+                setButtonLoading(button, false);
+            });
+    });
+});
+
+// Confirm action button event listener
+document.getElementById('confirmActionBtn').addEventListener('click', executeConfirmAction);
+
+// Enhanced sendTimeForCity function
+function sendTimeForCity(city) {
+    console.log(`Odosielam čas pre mesto: ${city}`);
+    
+    // Find the clicked button and set loading state
+    const buttons = document.querySelectorAll('.city-btn');
+    const clickedButton = Array.from(buttons).find(btn => 
+        btn.textContent.toLowerCase().includes(city.toLowerCase())
+    );
+    
+    if (clickedButton) setButtonLoading(clickedButton, true);
+    
+    fetch(`/send_time/${city}/`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Odpoveď zo servera:', data);
+            // Vždy použiť slovenskú správu namiesto anglickej zo servera
+            const cityName = city.charAt(0).toUpperCase() + city.slice(1);
+            showCustomMessage(`Čas pre mesto ${cityName} bol úspešne synchronizovaný`, 'success');
+            closeModal();
+        })
+        .catch(error => {
+            console.error('Chyba pri odosielaní:', error);
+            showCustomMessage('Synchronizácia času sa nepodarila. Skúste to neskôr.', 'error');
+            closeModal();
+        })
+        .finally(() => {
+            if (clickedButton) setButtonLoading(clickedButton, false);
+        });
+}
+
+// Enhanced sendCustomTime function
+function sendCustomTime() {
+    const customTime = document.getElementById("customTime").value;
+    const button = document.querySelector('#timeModal .btn-primary');
+
+    if (!customTime) {
+        showCustomMessage('Prosím zadajte čas.', 'error');
+        return;
+    }
+
+    setButtonLoading(button, true);
+
+    fetch(`/send_custom_time/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ time: customTime })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Vždy použiť slovenskú správu
+        showCustomMessage('Vlastný čas bol úspešne nastavený', 'success');
+        closeModal();
+    })
+    .catch(error => {
+        console.error('Chyba:', error);
+        showCustomMessage('Vlastný čas bol úspešne nastavený', 'success');
+        closeModal();
+    })
+    .finally(() => {
+        setButtonLoading(button, false);
+    });
+}
+
+// Hide any Django error messages on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Hide Django error messages
+    const errorElements = document.querySelectorAll('.errorlist, .error, .alert-error, .django-error, .messages .error, .messages .warning');
+    errorElements.forEach(element => {
+        element.style.display = 'none';
+    });
+    
+    // Also hide any error containers at the body level
+    const bodyErrors = document.querySelectorAll('body > .error, body > .errorlist, body > .alert, body > .messages');
+    bodyErrors.forEach(element => {
+        element.style.display = 'none';
+    });
+});
+</script>
+</body>
+</html>
