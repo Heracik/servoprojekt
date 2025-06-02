@@ -122,7 +122,7 @@ async def send_shutdown_command():
 
     async def connect_and_publish():
         await client.connect('broker.emqx.io', 1883)
-        await client.publish("esp32/projekt1", "vypnut", qos=1)
+        await client.publish("esp32/projekt1", "000000000000", qos=1)
         await client.disconnect()
 
     try:
