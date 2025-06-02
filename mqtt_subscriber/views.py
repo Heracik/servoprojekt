@@ -11,6 +11,7 @@ import logging
 
 #broker.emqx.io
 #broker.hivemq.com
+#test.mosquitto.org
 
 cities_timezones = {
     'bakerisland': 'Etc/UTC-12:00',
@@ -80,7 +81,7 @@ async def send_mqtt_message(custom_time):
 
     try:
         
-        await client.connect('broker.hivemq.com', 1883)
+        await client.connect('test.mosquitto.org', 1883)
         print("Pripojené k MQTT brokeru")
 
        
@@ -124,7 +125,7 @@ async def send_shutdown_command():
     client = MQTTClient("shutdown-client")
 
     async def connect_and_publish():
-        await client.connect('broker.hivemq.com', 1883)
+        await client.connect('test.mosquitto.org', 1883)
         await client.publish("esp32/projekt1", "000000000000", qos=1)
         await client.disconnect()
 
@@ -153,7 +154,7 @@ async def send_sync_command():
     client = MQTTClient("sync-client")
 
     async def connect_and_publish():
-        await client.connect('broker.hivemq.com', 1883)
+        await client.connect('test.mosquitto.org', 1883)
         await client.publish("esp32/projekt1", "0000000000", qos=1)
         await client.disconnect()
 
@@ -180,7 +181,7 @@ async def send_desync_command():
     client = MQTTClient("desync-client")
 
     async def connect_and_publish():
-        await client.connect('broker.hivemq.com', 1883)
+        await client.connect('test.mosquitto.org', 1883)
         await client.publish("esp32/projekt1", "1111111111", qos=1)
         await client.disconnect()
 
