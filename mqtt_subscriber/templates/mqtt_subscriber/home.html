@@ -65,7 +65,7 @@
 </head>
 <body>
     <div class="container">
-        <!-- Header Section -->
+        
         <header class="header">
             <div class="header-content">
                 <h1 class="servo-hodiny">
@@ -75,9 +75,9 @@
             </div>
         </header>
 
-        <!-- Main Content -->
+       
         <main class="main-content">
-            <!-- Control Panel -->
+            
             <section class="control-panel">
                 <h2>Ovládací Panel</h2>
                 <div class="button-grid">
@@ -104,7 +104,7 @@
                 </div>
             </section>
 
-            <!-- Project Description -->
+            
             <section class="project-description">
                 <h2>O Projekte</h2>
                 <div class="description-content">
@@ -160,7 +160,7 @@
             </div>
         </footer>
 
-    <!-- Modals -->
+    
     <div id="cityModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -196,7 +196,7 @@
         </div>
     </div>
 
-    <!-- Confirmation Modal -->
+    
     <div id="confirmModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -216,23 +216,23 @@
     </div>
 
     <script>
-// Enhanced error handling and button states
+
 function showCustomMessage(message, type = 'success') {
-    // Remove any existing custom messages
+    
     const existingMessages = document.querySelectorAll('.custom-error, .custom-success');
     existingMessages.forEach(msg => msg.remove());
     
-    // Create new message element
+    
     const messageDiv = document.createElement('div');
     messageDiv.className = type === 'error' ? 'custom-error' : 'custom-success';
     messageDiv.textContent = message;
     messageDiv.style.display = 'block';
     
-    // Insert after header
+    
     const header = document.querySelector('.header');
     header.insertAdjacentElement('afterend', messageDiv);
     
-    // Auto-hide after 5 seconds
+    
     setTimeout(() => {
         messageDiv.style.opacity = '0';
         setTimeout(() => messageDiv.remove(), 300);
@@ -249,12 +249,12 @@ function setButtonLoading(button, loading) {
     }
 }
 
-// Custom confirmation modal functions
+
 function showConfirmModal(message, onConfirm) {
     document.getElementById('confirmMessage').textContent = message;
     document.getElementById('confirmModal').style.display = 'block';
     
-    // Store the confirm action
+    
     window.pendingConfirmAction = onConfirm;
 }
 
@@ -270,13 +270,13 @@ function executeConfirmAction() {
     }
 }
 
-// Close modal when clicking outside
+
 function closeModal() {
     document.getElementById("cityModal").style.display = "none";
     document.getElementById("timeModal").style.display = "none";
 }
 
-// Enhanced shutdown button with custom confirmation
+
 document.getElementById("shutdownBtn").addEventListener("click", function() {
     const button = this;
     
@@ -303,7 +303,7 @@ document.getElementById("shutdownBtn").addEventListener("click", function() {
     });
 });
 
-// Synchronization button event listener
+
 document.getElementById("syncBtn").addEventListener("click", function() {
     const button = this;
     setButtonLoading(button, true);
@@ -327,7 +327,7 @@ document.getElementById("syncBtn").addEventListener("click", function() {
         });
 });
 
-// Desynchronization button event listener
+
 document.getElementById("desyncBtn").addEventListener("click", function() {
     const button = this;
     setButtonLoading(button, true);
@@ -351,14 +351,14 @@ document.getElementById("desyncBtn").addEventListener("click", function() {
         });
 });
 
-// Confirm action button event listener
+
 document.getElementById('confirmActionBtn').addEventListener('click', executeConfirmAction);
 
-// Enhanced sendTimeForCity function
+
 function sendTimeForCity(city) {
     console.log(`Odosielam čas pre mesto: ${city}`);
     
-    // Find the clicked button and set loading state
+    
     const buttons = document.querySelectorAll('.city-btn');
     const clickedButton = Array.from(buttons).find(btn => 
         btn.textContent.toLowerCase().includes(city.toLowerCase())
@@ -375,7 +375,7 @@ function sendTimeForCity(city) {
         })
         .then(data => {
             console.log('Odpoveď zo servera:', data);
-            // Vždy použiť slovenskú správu namiesto anglickej zo servera
+            
             const cityName = city.charAt(0).toUpperCase() + city.slice(1);
             showCustomMessage(`Čas pre mesto ${cityName} bol úspešne synchronizovaný`, 'success');
             closeModal();
@@ -390,7 +390,7 @@ function sendTimeForCity(city) {
         });
 }
 
-// Enhanced sendCustomTime function
+
 function sendCustomTime() {
     const customTime = document.getElementById("customTime").value;
     const button = document.querySelector('#timeModal .btn-primary');
@@ -414,7 +414,7 @@ function sendCustomTime() {
         return response.json();
     })
     .then(data => {
-        // Vždy použiť slovenskú správu
+        
         showCustomMessage('Vlastný čas bol úspešne nastavený', 'success');
         closeModal();
     })
@@ -428,15 +428,15 @@ function sendCustomTime() {
     });
 }
 
-// Hide any Django error messages on page load
+
 document.addEventListener('DOMContentLoaded', function() {
-    // Hide Django error messages
+    
     const errorElements = document.querySelectorAll('.errorlist, .error, .alert-error, .django-error, .messages .error, .messages .warning');
     errorElements.forEach(element => {
         element.style.display = 'none';
     });
     
-    // Also hide any error containers at the body level
+    
     const bodyErrors = document.querySelectorAll('body > .error, body > .errorlist, body > .alert, body > .messages');
     bodyErrors.forEach(element => {
         element.style.display = 'none';
