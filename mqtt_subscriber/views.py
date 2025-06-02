@@ -151,7 +151,7 @@ async def send_sync_command():
 
     async def connect_and_publish():
         await client.connect('broker.emqx.io', 1883)
-        await client.publish("esp32/projekt1", "1111111111", qos=1)
+        await client.publish("esp32/projekt1", "0000000000", qos=1)
         await client.disconnect()
 
     try:
@@ -178,7 +178,7 @@ async def send_desync_command():
 
     async def connect_and_publish():
         await client.connect('broker.emqx.io', 1883)
-        await client.publish("esp32/projekt1", "0000000000", qos=1)
+        await client.publish("esp32/projekt1", "1111111111", qos=1)
         await client.disconnect()
 
     try:
