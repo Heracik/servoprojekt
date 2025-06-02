@@ -66,15 +66,6 @@ def send_time(request, city):
     send_current_time(city)
     return JsonResponse({'message': f'Time for {city} has been sent successfully!'})
 
-
-
-
-
-
-
-
-
-
 # Existujúce funkcie
 async def send_mqtt_message(custom_time):
     # Vytvorenie MQTT klienta
@@ -90,7 +81,7 @@ async def send_mqtt_message(custom_time):
         print("Pripojené k MQTT brokeru")
 
         # Topic pre odoslanie času
-        topic = "esp32/projekt"
+        topic = "esp32/projekt1"
         message = f"{custom_time}"
 
         # Odoslanie správy do topicu
@@ -126,14 +117,12 @@ async def send_custom_time(request):
 
     return JsonResponse({"message": "Nesprávna požiadavka!"}, status=400)
 
-
-
 async def send_shutdown_command():
     client = MQTTClient("shutdown-client")
 
     async def connect_and_publish():
         await client.connect('broker.emqx.io', 1883)
-        await client.publish("esp32/projekt", "1111111111", qos=1)
+        await client.publish("esp32/projekt1", "vypnut", qos=1)
         await client.disconnect()
 
     try:
@@ -153,5 +142,60 @@ def send_shutdown_command_view(request):
         except Exception as e:
             print(f"Chyba pri spracovaní príkazu na vypnutie: {e}")
             return JsonResponse({'status': 'error', 'message': 'Chyba pri odosielaní príkazu.'}, status=500)
+
+    return JsonResponse({'status': 'error', 'message': 'Nesprávna požiadavka!'}, status=400)
+
+# Nové funkcie pre synchronizáciu a desynchronizáciu
+async def send_sync_command():
+    client = MQTTClient("sync-client")
+
+    async def connect_and_publish():
+        await client.connect('broker.emqx.io', 1883)
+        await client.publish("esp32/projekt1", "1111111111", qos=1)
+        await client.disconnect()
+
+    try:
+        await connect_and_publish()
+        print("Príkaz na synchronizáciu bol odoslaný!")
+    except Exception as e:
+        print(f"Chyba pri odosielaní príkazu na synchronizáciu: {e}")
+        raise
+
+@csrf_exempt
+def send_sync_command_view(request):
+    if request.method == 'POST':
+        try:
+            asyncio.run(send_sync_command())
+            return JsonResponse({'status': 'success', 'message': 'Synchronizácia bola úspešne spustená!'})
+        except Exception as e:
+            print(f"Chyba pri spracovaní príkazu na synchronizáciu: {e}")
+            return JsonResponse({'status': 'error', 'message': 'Chyba pri odosielaní príkazu na synchronizáciu.'}, status=500)
+
+    return JsonResponse({'status': 'error', 'message': 'Nesprávna požiadavka!'}, status=400)
+
+async def send_desync_command():
+    client = MQTTClient("desync-client")
+
+    async def connect_and_publish():
+        await client.connect('broker.emqx.io', 1883)
+        await client.publish("esp32/projekt1", "0000000000", qos=1)
+        await client.disconnect()
+
+    try:
+        await connect_and_publish()
+        print("Príkaz na desynchronizáciu bol odoslaný!")
+    except Exception as e:
+        print(f"Chyba pri odosielaní príkazu na desynchronizáciu: {e}")
+        raise
+
+@csrf_exempt
+def send_desync_command_view(request):
+    if request.method == 'POST':
+        try:
+            asyncio.run(send_desync_command())
+            return JsonResponse({'status': 'success', 'message': 'Desynchronizácia bola úspešne spustená!'})
+        except Exception as e:
+            print(f"Chyba pri spracovaní príkazu na desynchronizáciu: {e}")
+            return JsonResponse({'status': 'error', 'message': 'Chyba pri odosielaní príkazu na desynchronizáciu.'}, status=500)
 
     return JsonResponse({'status': 'error', 'message': 'Nesprávna požiadavka!'}, status=400)

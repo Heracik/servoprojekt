@@ -114,10 +114,35 @@ body > .messages {
 
 .button-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
   gap: 1.5rem;
-  max-width: 900px;
+  max-width: 1000px;
   margin: 0 auto;
+  grid-template-areas:
+    "city custom shutdown"
+    "sync empty desync";
+}
+
+/* Button positioning */
+.btn[onclick*="openCityModal"] {
+  grid-area: city;
+}
+
+.btn[onclick*="openTimeModal"] {
+  grid-area: custom;
+}
+
+#shutdownBtn {
+  grid-area: shutdown;
+}
+
+#syncBtn {
+  grid-area: sync;
+}
+
+#desyncBtn {
+  grid-area: desync;
 }
 
 /* Button Styles */
@@ -137,6 +162,8 @@ body > .messages {
   letter-spacing: 0.5px;
   position: relative;
   overflow: hidden;
+  min-height: 80px;
+  width: 100%;
 }
 
 .btn::before {
@@ -183,6 +210,32 @@ body > .messages {
   box-shadow: 0 12px 35px rgba(255, 107, 53, 0.3);
   background: linear-gradient(135deg, #555555 0%, #666666 100%);
   color: #ffffff;
+}
+
+.btn-sync {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.btn-sync:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 35px rgba(16, 185, 129, 0.6);
+  background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+}
+
+.btn-desync {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: #ffffff;
+  box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.btn-desync:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 35px rgba(245, 158, 11, 0.6);
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
 }
 
 .btn-danger {
@@ -577,6 +630,13 @@ body > .messages {
 
   .button-grid {
     grid-template-columns: 1fr;
+    grid-template-rows: repeat(5, 1fr);
+    grid-template-areas:
+      "city"
+      "custom"
+      "shutdown"
+      "sync"
+      "desync";
   }
 
   .features {

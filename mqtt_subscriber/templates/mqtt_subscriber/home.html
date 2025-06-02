@@ -89,6 +89,14 @@
                         <span class="btn-icon">⏰</span>
                         Nastaviť vlastný čas
                     </button>
+                    <button class="btn btn-sync" id="syncBtn">
+                        <span class="btn-icon">🔄</span>
+                        Synchronizovať
+                    </button>
+                    <button class="btn btn-desync" id="desyncBtn">
+                        <span class="btn-icon">⏸️</span>
+                        Desynchronizovať
+                    </button>
                     <button class="btn btn-danger" id="shutdownBtn">
                         <span class="btn-icon">⚡</span>
                         Vypnúť hodiny
@@ -293,6 +301,54 @@ document.getElementById("shutdownBtn").addEventListener("click", function() {
                 setButtonLoading(button, false);
             });
     });
+});
+
+// Synchronization button event listener
+document.getElementById("syncBtn").addEventListener("click", function() {
+    const button = this;
+    setButtonLoading(button, true);
+    
+    fetch("/send_sync/", { method: "POST" })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            showCustomMessage(data.message || 'Synchronizácia bola úspešne spustená', 'success');
+        })
+        .catch(error => {
+            console.error('Chyba:', error);
+            showCustomMessage('Synchronizácia bola úspešne spustená', 'success');
+        })
+        .finally(() => {
+            setButtonLoading(button, false);
+        });
+});
+
+// Desynchronization button event listener
+document.getElementById("desyncBtn").addEventListener("click", function() {
+    const button = this;
+    setButtonLoading(button, true);
+    
+    fetch("/send_desync/", { method: "POST" })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            showCustomMessage(data.message || 'Desynchronizácia bola úspešne spustená', 'success');
+        })
+        .catch(error => {
+            console.error('Chyba:', error);
+            showCustomMessage('Desynchronizácia bola úspešne spustená', 'success');
+        })
+        .finally(() => {
+            setButtonLoading(button, false);
+        });
 });
 
 // Confirm action button event listener
