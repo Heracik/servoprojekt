@@ -5,7 +5,7 @@ import time
 from datetime import datetime
 import pytz
 
-MQTT_BROKER = "test.mosquitto.org"
+MQTT_BROKER = "broker.emqx.io"
 TOPIC = "esp32/projekt1"
 
 client = None
